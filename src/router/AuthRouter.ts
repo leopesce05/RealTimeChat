@@ -5,16 +5,16 @@ import { createAccount, login } from "../handlers/AuthHandlers";
 
 const authRouter = Router();
 
-authRouter.post('/auth/register', 
+authRouter.post('/register', 
     // Agregar las validaciones como middleware
     body('email').isEmail().withMessage('Debe ser un email válido'),
-    body('name').notEmpty().withMessage('El nombre no debe estar vacio'),
+    body('username').notEmpty().withMessage('El nombre no debe estar vacio'),
     body('password').isLength({min: 8}).withMessage('La contraseña debe tener al menos 8 caracteres'),
     handleInputErrors,
     createAccount
 )
 
-authRouter.post('/auth/login',
+authRouter.post('/login',
     [
         body('email').isEmail().withMessage('E-mail inválido'),
         body('password').notEmpty().withMessage('La contraseña es obligatoria'),

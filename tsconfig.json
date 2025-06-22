@@ -1,0 +1,16 @@
+{
+    "compilerOptions": {
+      "outDir": "./dist",                 // Directorio de salida
+      "rootDir": "./src",                 // Directorio raíz de los archivos de origen
+      "lib": ["ESNext"],                  // Usa las últimas características de ECMAScript
+      "target": "ESNext",                 // El objetivo de transpilación, usando las últimas características de ES
+      "moduleResolution": "NodeNext",     // Resolución de módulos basada en el estilo de módulos de Node.js
+      "module": "NodeNext",               // Cambia esto a "NodeNext"
+      "strict": false,                    // Habilita el modo estricto
+      "sourceMap": true,                  // Genera mapas de fuente para depuración
+      "esModuleInterop": true,            // Asegura la compatibilidad de interop entre CommonJS y ES Modules
+      "declaration": true,                // Genera archivos de declaración (.d.ts)
+    },
+    "include": ["src/**/*.ts"],           // Archivos a incluir en el proyecto
+    "exclude": ["node_modules"]           // Archivos a excluir del proyecto
+}

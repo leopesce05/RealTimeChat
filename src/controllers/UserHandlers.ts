@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { User, IUser } from "../models/User";
+import { User } from "../models/User";
 import { Types } from "mongoose";
 
 const getUser = async (req: Request, res: Response) => {

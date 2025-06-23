@@ -17,6 +17,7 @@ const userSchema = new Schema<IUser>(
         },
         email: {
             type: String,
+            index: true,
             required: true,
             unique: true,
             trim: true,
@@ -33,9 +34,5 @@ const userSchema = new Schema<IUser>(
     },
     { timestamps: true }
 );
-
-// Agregar indices para mejorar performance
-userSchema.index({ email: 1 });
-userSchema.index({ username: 1 });
 
 export const User = model<IUser>('User', userSchema);

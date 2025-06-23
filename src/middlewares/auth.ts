@@ -2,14 +2,12 @@ import { NextFunction, Request, Response } from "express";
 import { verifyToken } from "../utils/jwt";
 import { IUser, User } from "../models/User";
 
-declare global {
-    namespace Express {
-        interface Request {
-            user: IUser;
-        }
+// Extender la interfaz Request de Express usando module augmentation
+declare module 'express-serve-static-core' {
+    interface Request {
+        user: IUser;
     }
 }
-
 
 const auth = async (req: Request, res: Response, next: NextFunction) => {
     let token = req.headers.authorization;

@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { body } from "express-validator";
 
-import auth from "../middlewares/auth";
+import {auth} from "../middlewares/auth";
 import handleInputErrors from "../middlewares/handleInputErrors";
 import { validateEmail, validateEmailExists } from "../middlewares/user";
 import { getUser,updateUsername,addContact,deleteContact, getContacts } from "../controllers/UserHandlers";

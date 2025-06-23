@@ -1,6 +1,7 @@
 import { Server, Socket } from 'socket.io';
 import { ioAuth } from './middlewares/auth';
-import { joinSelfRoom, processPrivateMessage } from './controllers/socketHandlers/ConnectionHandler';
+import { joinGroupsRoom, joinSelfRoom } from './controllers/socketHandlers/ConnectionHandler';
+import { processPrivateMessage, processGroupMessage } from './controllers/socketHandlers/MessageEventHandler';
 
 export const setupSocketEvents = (io: Server) => {
 
@@ -14,10 +15,15 @@ export const setupSocketEvents = (io: Server) => {
         //UNIR AL USUARIO A SU SALA DE CHAT
         joinSelfRoom(socket);
 
+        //UNIR AL USUARIO A SUS GRUPOS
+        joinGroupsRoom(socket);
+
 
         //Handler para mensajes de chat
         socket.on('chat-message', processPrivateMessage);
-    
+
+        //Handler para mensajes de grupo
+        socket.on('group-message', processGroupMessage);
         //TODO: CREAR ESTO
         socket.on('ia-message', async (data) => {
             // Llamada asíncrona a OpenAI

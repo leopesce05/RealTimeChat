@@ -6,20 +6,7 @@ export const joinSelfRoom = (socket: Socket) => {
 }
 
 
-export const processPrivateMessage = (socket: Socket, data: string) => {
-    console.log('Received message:', data);
-
-    //TODO: GUARDAR EL MENSAJE EN LA BASE DE DATOS
-
-    //TODO: ENVIAR EL MENSAJE A TODOS LOS USUARIOS EN LA SALA DE CHAT
-
-    //TODO: ENVIAR EL MENSAJE A TODOS LOS USUARIOS EN LA SALA DE CHAT
-}
-
-export const processGroupMessage = (socket: Socket, data: string) => {
-    console.log('Received message:', data);
-
-    //TODO: GUARDAR EL MENSAJE EN LA BASE DE DATOS
-
-    //TODO: ENVIAR EL MENSAJE A TODOS LOS USUARIOS EN LA SALA DE CHAT
+export const joinGroupsRoom = (socket: Socket) => {
+    //UNIR AL USUARIO A SUS GRUPOS
+    //TODO: CREAR ESTO
 }

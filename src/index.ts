@@ -16,5 +16,5 @@ setupSocketEvents(io);
 const PORT = process.env.PORT || 3000;
 
 server.listen(PORT, () => {
-    console.log(colors.rainbow(`Server is running on port: ${PORT}`));
+    console.log(colors.blue.bold(`Server initialized successfully on port ${PORT}`));
 });

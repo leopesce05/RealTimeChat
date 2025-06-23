@@ -6,6 +6,7 @@ export interface IMessage extends Document {
     message: string;
     senderId: Types.ObjectId;
     receiverId: Types.ObjectId;
+    readBy: Types.ObjectId[];
     date: Date;
 }
 
@@ -29,9 +30,15 @@ const messageSchema = new Schema<IMessage>({
         type: Schema.Types.ObjectId,
         required: true
     },
+    readBy: {
+        type: [Schema.Types.ObjectId],
+        ref: 'User',
+        default: []
+    },
     date: {
         type: Date,
-        default: Date.now
+        default: Date.now,
+        required: true
     }
 });
 

@@ -27,9 +27,7 @@ const getContacts = async (req: Request, res: Response) => {
             { username: 1, email: 1 }
         );
 
-        res.status(200).json({
-            contacts
-        });
+        res.status(200).json(contacts);
     } catch (error) {
         res.status(500).json({ message: 'Error al obtener contactos' });
     }

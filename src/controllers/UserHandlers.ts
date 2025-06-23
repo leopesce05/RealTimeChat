@@ -19,6 +19,22 @@ const updateUsername = async (req: Request, res: Response) => {
     }
 }
 
+const getContacts = async (req: Request, res: Response) => {
+    try {
+        const user = req.user;
+        const contacts = await User.find(
+            { _id: { $in: user.contacts } },
+            { username: 1, email: 1 }
+        );
+
+        res.status(200).json({
+            contacts
+        });
+    } catch (error) {
+        res.status(500).json({ message: 'Error al obtener contactos' });
+    }
+}
+
 const addContact = async (req: Request, res: Response) => {
     try {
         const user = req.user;
@@ -60,4 +76,4 @@ const deleteContact = async (req: Request, res: Response) => {
     }
 }
 
-export { getUser, updateUsername, addContact, deleteContact };
+export { getUser, updateUsername, addContact, deleteContact, getContacts };

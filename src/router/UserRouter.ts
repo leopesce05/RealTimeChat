@@ -1,9 +1,10 @@
 import { Router } from "express";
-import auth from "../middlewares/auth";
-import { getUser,updateUsername,addContact,deleteContact } from "../controllers/UserHandlers";
 import { body } from "express-validator";
+
+import auth from "../middlewares/auth";
 import handleInputErrors from "../middlewares/handleInputErrors";
 import { validateEmail, validateEmailExists } from "../middlewares/user";
+import { getUser,updateUsername,addContact,deleteContact, getContacts } from "../controllers/UserHandlers";
 
 const userRouter = Router();
 
@@ -21,6 +22,11 @@ userRouter.put('/',
     body('username').notEmpty().withMessage('El nombre no debe estar vacio'),
     handleInputErrors,
     updateUsername
+);
+
+userRouter.get('/contact', 
+    auth,
+    getContacts
 );
 
 userRouter.post('/contact/:email', 

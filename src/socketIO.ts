@@ -1,37 +1,26 @@
 import { Server, Socket } from 'socket.io';
-import OpenAIService from './services/openai';
+import { ioAuth } from './middlewares/auth';
+import { joinSelfRoom, processPrivateMessage } from './controllers/socketHandlers/ConnectionHandler';
 
 export const setupSocketEvents = (io: Server) => {
-    // Inicializar OpenAI service
-    const openai = new OpenAIService(process.env.OPENAI_API_KEY || '');
+
+
+    //Autenticacion por JWT
+    io.use(ioAuth);
 
     io.on('connection', (socket: Socket) => {
         console.log('A user connected');
 
-        // Event handler para mensajes de chat con IA
-        socket.on('chat message', async (data) => {
-            try {
-                //Reenviar el mensaje al cliente
-                socket.emit('chat message', data);
+        //UNIR AL USUARIO A SU SALA DE CHAT
+        joinSelfRoom(socket);
 
 
-                // Llamada asíncrona a OpenAI
-                const aiResponse = await openai.generateResponse(data);
-
-                // Emitir respuesta de la IAå
-                socket.emit('chat message',
-                    { message: aiResponse }
-                );
-
-            } catch (error) {
-                console.error('Error en chat-message:', error);
-
-                // Emitir error al cliente
-                socket.emit('chat message', {
-                    message: 'Error procesando tu mensaje',
-                    timestamp: new Date()
-                });
-            }
+        //Handler para mensajes de chat
+        socket.on('chat-message', processPrivateMessage);
+    
+        //TODO: CREAR ESTO
+        socket.on('ia-message', async (data) => {
+            // Llamada asíncrona a OpenAI
         });
 
 

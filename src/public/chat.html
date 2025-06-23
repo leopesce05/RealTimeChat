@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat App</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .chat-container {
+            width: 100%;
+            max-width: 400px;
+            height: 600px;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .chat-header {
+            background: #667eea;
+            color: white;
+            padding: 20px;
+            text-align: center;
+            font-weight: 600;
+            font-size: 18px;
+        }
+
+        .chat-messages {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            background: #f8f9fa;
+        }
+
+        .message {
+            margin-bottom: 15px;
+            display: flex;
+            align-items: flex-end;
+        }
+
+        .message.sent {
+            justify-content: flex-end;
+        }
+
+        .message.received {
+            justify-content: flex-start;
+        }
+
+        .message-bubble {
+            max-width: 70%;
+            padding: 12px 16px;
+            border-radius: 18px;
+            word-wrap: break-word;
+            font-size: 14px;
+            line-height: 1.4;
+        }
+
+        .message.sent .message-bubble {
+            background: #667eea;
+            color: white;
+            border-bottom-right-radius: 4px;
+        }
+
+        .message.received .message-bubble {
+            background: white;
+            color: #333;
+            border: 1px solid #e1e5e9;
+            border-bottom-left-radius: 4px;
+        }
+
+        .message-time {
+            font-size: 11px;
+            color: #999;
+            margin-top: 4px;
+            text-align: right;
+        }
+
+        .message.received .message-time {
+            text-align: left;
+        }
+
+        .chat-input-container {
+            padding: 20px;
+            background: white;
+            border-top: 1px solid #e1e5e9;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .chat-input {
+            flex: 1;
+            padding: 12px 16px;
+            border: 1px solid #e1e5e9;
+            border-radius: 25px;
+            font-size: 14px;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+
+        .chat-input:focus {
+            border-color: #667eea;
+        }
+
+        .send-button {
+            background: #667eea;
+            color: white;
+            border: none;
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background-color 0.3s;
+            font-size: 18px;
+        }
+
+        .send-button:hover {
+            background: #5a6fd8;
+        }
+
+        .send-button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        .connection-status {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            z-index: 1000;
+        }
+
+        .status-connected {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-disconnected {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        /* Scrollbar personalizado */
+        .chat-messages::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .chat-messages::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+
+        .chat-messages::-webkit-scrollbar-thumb {
+            background: #c1c1c1;
+            border-radius: 2px;
+        }
+
+        .chat-messages::-webkit-scrollbar-thumb:hover {
+            background: #a8a8a8;
+        }
+
+        /* Animación para nuevos mensajes */
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .message {
+            animation: slideIn 0.3s ease-out;
+        }
+    </style>
+</head>
+<body>
+    <div class="connection-status" id="connectionStatus">
+        Conectando...
+    </div>
+
+    <div class="chat-container">
+        <div class="chat-header">
+            💬 Chat en Tiempo Real
+        </div>
+        
+        <div class="chat-messages" id="chatMessages">
+            <div class="message received">
+                <div class="message-bubble">
+                    ¡Hola! Bienvenido al chat. Escribe un mensaje para comenzar.
+                    <div class="message-time">Ahora</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="chat-input-container">
+            <input 
+                type="text" 
+                class="chat-input" 
+                id="messageInput" 
+                placeholder="Escribe un mensaje..."
+                maxlength="500"
+            >
+            <button class="send-button" id="sendButton">
+                ➤
+            </button>
+        </div>
+    </div>
+
+    <script type="module">
+        import {io} from 'https://cdn.socket.io/4.3.2/socket.io.esm.min.js'
+
+        // Elementos del DOM
+        const chatMessages = document.getElementById('chatMessages');
+        const messageInput = document.getElementById('messageInput');
+        const sendButton = document.getElementById('sendButton');
+        const connectionStatus = document.getElementById('connectionStatus');
+
+        // Token JWT (reemplaza con tu token real)
+        const jwtToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4NTg4MTY5ZTBjNzhkZjlkZTM3ZGY0YiIsImlhdCI6MTc1MDcxNDU0MiwiZXhwIjoxNzUwODAwOTQyfQ.cPClWy7YTZBFl639WiISoCUdcv5UYZoWlT9eXQX2Icw';
+        
+        // URL del servidor
+        const serverUrl = 'http://localhost:3000';
+        
+        // Opciones de conexión con autenticación JWT
+        const socketOptions = {
+            auth: {
+                token: jwtToken
+            }
+        };
+        
+        // Conectar a Socket.IO
+        const socket = io(serverUrl, socketOptions);
+        
+        // Función para actualizar estado de conexión
+        function updateConnectionStatus(connected) {
+            if (connected) {
+                connectionStatus.textContent = 'Conectado';
+                connectionStatus.className = 'connection-status status-connected';
+            } else {
+                connectionStatus.textContent = 'Desconectado';
+                connectionStatus.className = 'connection-status status-disconnected';
+            }
+        }
+        
+        // Función para agregar mensaje al chat
+        function addMessage(text, isSent = false, timestamp = new Date()) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${isSent ? 'sent' : 'received'}`;
+            
+            const timeString = timestamp.toLocaleTimeString('es-ES', {
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+            
+            messageDiv.innerHTML = `
+                <div class="message-bubble">
+                    ${text}
+                    <div class="message-time">${timeString}</div>
+                </div>
+            `;
+            
+            chatMessages.appendChild(messageDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+        
+        // Función para enviar mensaje
+        function sendMessage() {
+            const text = messageInput.value.trim();
+            if (text && socket.connected) {
+                // Agregar mensaje localmente
+                addMessage(text, true);
+                
+                // Enviar al servidor
+                socket.emit('chat message', text);
+                
+                // Limpiar input
+                messageInput.value = '';
+            }
+        }
+        
+        // Event listeners
+        sendButton.addEventListener('click', sendMessage);
+        
+        messageInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                sendMessage();
+            }
+        });
+        
+        // Eventos de Socket.IO
+        socket.on('connect', () => {
+            console.log('Conectado:', socket.id);
+            updateConnectionStatus(true);
+        });
+        
+        socket.on('disconnect', () => {
+            console.log('Desconectado');
+            updateConnectionStatus(false);
+        });
+        
+        socket.on('connect_error', (error) => {
+            console.error('Error de conexión:', error);
+            updateConnectionStatus(false);
+        });
+        
+        // Escuchar mensajes del servidor
+        socket.on('chat message', (data) => {
+            if (typeof data === 'string') {
+                addMessage(data, false);
+            } else if (data.message) {
+                addMessage(data.message, false);
+            }
+        });
+        
+        // Focus en el input al cargar
+        messageInput.focus();
+    </script>
+</body>
+</html>

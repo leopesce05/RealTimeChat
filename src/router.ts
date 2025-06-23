@@ -1,10 +1,12 @@
 import { Router } from "express";
-import { join } from 'node:path';
+import authRouter from "./router/AuthRouter";
+import userRouter from "./router/UserRouter";
 
 const router = Router();
 
-router.get('/', (req, res) => {
-    res.sendFile(join(__dirname, 'index.html'));
-});
+
+//USERS ROUTER
+router.use('/auth', authRouter);
+router.use('/user', userRouter);
 
 export default router;

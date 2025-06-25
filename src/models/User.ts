@@ -5,7 +5,6 @@ export interface IUser extends Document {
     username: string;
     email: string;
     password: string;
-    contacts: Types.ObjectId[];
 }
 
 const userSchema = new Schema<IUser>(
@@ -26,10 +25,6 @@ const userSchema = new Schema<IUser>(
         password: {
             type: String,
             required: true
-        },
-        contacts: {
-            type: [{ type: Schema.Types.ObjectId, ref: 'User' }],
-            default: []
         }
     },
     { timestamps: true }

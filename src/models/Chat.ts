@@ -10,7 +10,7 @@ export interface IChat extends Document {
 const chatSchema = new Schema<IChat>({
     name: {
         type: String,
-        required: true
+        required: false
     },
     type: {
         type: String,

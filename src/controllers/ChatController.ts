@@ -1,7 +1,6 @@
 import { Request, Response } from "express";
 import { Chat } from "../models/Chat";
 import { ChatMembership } from "../models/ChatMembership";
-import { Message } from "../models/Message";
 import { User } from "../models/User";
 
 
@@ -15,8 +14,11 @@ export const createChatHandler = async (req: Request, res: Response) => {
             res.status(400).json({ error: 'El chat privado no puede tener mas de un miembro' });
             return
         }
+        
+        // For private chats, name is not required
+        const chatData = type === 'private' ? { type } : { name, type };
 
-        const chat = await Chat.create({ name, type });
+        const chat = await Chat.create(chatData);
 
         if(!chat) {
             res.status(400).json({ error: 'Error al crear el chat' });

@@ -3,7 +3,7 @@ import { body } from "express-validator";
 
 import {auth} from "../middlewares/auth";
 import handleInputErrors from "../middlewares/handleInputErrors";
-import { getUser,updateUsername } from "../controllers/UserHandlers";
+import { getUser,updateUsername } from "../controllers/UserController";
 
 const userRouter = Router();
 

@@ -17,4 +17,14 @@ chatRouter.post('/',
     createChatHandler
 );
 
+//TODO: Get chat
+//TODO: Update chat
+//TODO: Delete chat
+//TODO: Get chats
+//TODO: Get chat members
+//TODO: Add chat member
+//TODO: Remove chat member
+
+
+
 export default chatRouter;

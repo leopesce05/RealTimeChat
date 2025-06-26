@@ -8,7 +8,13 @@ import { User } from "../models/User";
 export const createChatHandler = async (req: Request, res: Response) => {
     const { name, type, members } = req.body;
     const adminId = req.user._id.toString();
+
     try {
+        //Check if chat type is private and has more than 1 member
+        if(type === 'private' && members.length > 1) {
+            res.status(400).json({ error: 'El chat privado no puede tener mas de un miembro' });
+            return
+        }
 
         const chat = await Chat.create({ name, type });
 
@@ -53,7 +59,6 @@ const addUserToChat = async (chatId: string, userId: string, role: 'admin' | 'me
     if (!chat) {
         throw new Error('Chat not found');
     }
-
     //Check if user exists
     const user = await User.findById(userId);
 
@@ -68,6 +73,11 @@ const addUserToChat = async (chatId: string, userId: string, role: 'admin' | 'me
         throw new Error('El usuario ya esta en el chat');
     }
     
+    //If chat is private, dont add more than 1 member
+    if(chat.type === 'private' && actualUsers.length > 1) {
+        throw new Error('El chat privado no puede tener mas de un miembro');
+    }
+
     //Add user to chat
     await ChatMembership.create({ user: userId, chat: chatId, role });
 

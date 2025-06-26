@@ -39,6 +39,4 @@ chatMembershipSchema.index({ chat: 1 });
 chatMembershipSchema.index({ user: 1, chat: 1 }, { unique: true }); 
 
 
-const ChatMembership = model<IChatMembership>('ChatMembership', chatMembershipSchema);
-
-export default ChatMembership;
+export const ChatMembership = model<IChatMembership>('ChatMembership', chatMembershipSchema);

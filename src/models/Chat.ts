@@ -19,7 +19,7 @@ const chatSchema = new Schema<IChat>({
     },
     lastMessage: {
         type: String,
-        required: true
+        default: null
     }
 })
 

@@ -19,4 +19,8 @@ const updateUsername = async (req: Request, res: Response) => {
     }
 }
 
-export { getUser, updateUsername };
+const getUserByEmail = async (req: Request, res: Response) => {
+    res.json(req.reqUser);
+}
+
+export { getUser, updateUsername, getUserByEmail };

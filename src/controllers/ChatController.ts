@@ -9,14 +9,23 @@ export const createChatHandler = async (req: Request, res: Response) => {
     const adminId = req.user._id.toString();
 
     try {
+        //Eliminar el admin de los mebmbers si es que esta
+        const filteredMembers = members.filter(member => member.toString() !== adminId);
+
         //Check if chat type is private and has more than 1 member
-        if(type === 'private' && members.length > 1) {
-            res.status(400).json({ error: 'El chat privado no puede tener mas de un miembro' });
+        if(type === 'private' && filteredMembers.length > 1) {
+            res.status(400).json({ error: 'El chat privado no puede tener mas de dos miembros' });
+            return
+        }
+
+        if(type === 'group' && !name) {
+            res.status(400).json({ error: 'El nombre es obligatorio para chats grupales' });
             return
         }
         
         // For private chats, name is not required
         const chatData = type === 'private' ? { type } : { name, type };
+
 
         const chat = await Chat.create(chatData);
 
@@ -30,7 +39,7 @@ export const createChatHandler = async (req: Request, res: Response) => {
             await addUserToChat(chat._id.toString(), adminId, 'admin');
 
             //ADD USERS TO CHAT
-            await addUsersToChat(chat._id.toString(), members);
+            await addUsersToChat(chat._id.toString(), filteredMembers);
         }catch(e) {
             res.status(400).json({ error: e.message });
             return

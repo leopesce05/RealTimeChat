@@ -13,6 +13,7 @@ chatRouter.use(auth);
 chatRouter.param('chatId', chatExists);
 chatRouter.param('chatId', validateChatMembership);
 
+// POST /chats - Create a new chat (private or group)
 chatRouter.post('/',
     auth,
     body('name').optional().isLength({min: 3, max: 16}).withMessage('El nombre debe tener entre 3 y 16 caracteres'),
@@ -23,11 +24,18 @@ chatRouter.post('/',
     createChatHandler
 );
 
+// GET /chats/:chatId - Get a specific chat with its members
+chatRouter.get('/:chatId',
+    getChatHandler
+);
+
+// GET /chats - Get all chats for the authenticated user
 chatRouter.get('/',
     handleInputErrors,
     getUserChatsHandler
 );
 
+// POST /chats/member - Add a single user to a chat
 chatRouter.post('/member',
     body('userId').isMongoId().withMessage('El usuario no es valido'),
     body('chatId').isMongoId().withMessage('El chat no es valido'),
@@ -38,6 +46,7 @@ chatRouter.post('/member',
     addUserToChatHandler
 );
 
+// POST /chats/members - Add multiple users to a chat
 chatRouter.post('/members',
     body('users').isArray().withMessage('Los usuarios tienen que ser un arreglo'),
     body('users.*').isMongoId().withMessage('Los usuarios tienen que ser un arreglo de ids de mongoDB'),
@@ -48,21 +57,11 @@ chatRouter.post('/members',
     addUsersToChatHandler
 );
 
+// GET /chats/members/:chatId - Get all members of a specific chat
 chatRouter.get('/members/:chatId',
     getChatMembersHandler
 );
 
-chatRouter.get('/:chatId',
-    getChatHandler
-);
-
-
-//TODO: Get chat
-//TODO: Update chat
-//TODO: Delete chat
-//TODO: Get chats
-//TODO: Get chat members
-//TODO: Remove chat member
 
 
 

@@ -5,6 +5,7 @@ import cors from 'cors';
 
 import connectDB from './config/db';
 import {corsOptions} from './config/cors';
+import limiter from './config/limiter';
 import router from './router';
 
 // Configurar variables de entorno
@@ -23,6 +24,9 @@ app.use(express.json());
 
 // CORS
 app.use(cors(corsOptions));
+
+// Rate limiter
+app.use(limiter);
 
 // Routes
 app.use(router);

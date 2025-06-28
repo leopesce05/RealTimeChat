@@ -30,4 +30,16 @@ const emailExists = async (req: Request, res: Response, next: NextFunction) => {
     req.reqUser = user;
     next();
 };
-export { emailExists, validateEmail };
+
+const idExists = async (req: Request, res: Response, next: NextFunction) => {
+    const { userId } = req.body;
+    const user = await User.findById({ userId }).select('_id email username');
+    if(!user) {
+        res.status(404).json({ message: 'Usuario no encontrado' });
+        return
+    }
+    req.reqUser = user;
+    next();
+};
+
+export { emailExists, validateEmail, idExists };

@@ -14,7 +14,7 @@ declare global {
 
 
 export const validateChatOwner = async (req: Request, res: Response, next: NextFunction) => {
-    const { chatId } = req.params;
+    const { chatId } = req.params || req.body;
     const user = req.user;
 
     const chatMembership = await ChatMembership.findOne({ chat: chatId, user: user._id });
@@ -33,8 +33,28 @@ export const validateChatOwner = async (req: Request, res: Response, next: NextF
 
 }
 
+export const validateChatMembership = async (req: Request, res: Response, next: NextFunction) => {
+    const { chatId } = req.params || req.body;
+    const user = req.user;
+
+    const chatMembership = await ChatMembership.findOne({ chat: chatId, user: user._id });
+
+    if(!chatMembership) {
+        res.status(404).json({ message: 'No tienes permisos para acceder a este chat' });
+        return
+    }
+
+    if(!chatMembership) {
+        res.status(403).json({ message: 'No tienes permisos para acceder a este chat' });
+        return
+    }
+
+    next();
+
+}
+
 export const chatExists = async (req: Request, res: Response, next: NextFunction) => {
-    const { chatId } = req.params;
+    const { chatId } = req.params || req.body;
 
     const chat = await Chat.findById(chatId);
 

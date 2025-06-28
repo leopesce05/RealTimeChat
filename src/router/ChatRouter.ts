@@ -1,16 +1,29 @@
 import { Router } from "express";
 import { body } from "express-validator";
 
-import { createChatHandler, addUserToChatHandler, addUsersToChatHandler } from "../controllers/ChatController";
+import { createChatHandler, addUserToChatHandler, addUsersToChatHandler, getChatHandler, getChatMembersHandler } from "../controllers/ChatController";
 import { auth } from "../middlewares/auth";
 import handleInputErrors from "../middlewares/handleInputErrors";
-import { chatExists, validateChatOwner } from "../middlewares/chat";
+import { chatExists, validateChatOwner, validateChatMembership } from "../middlewares/chat";
 import { idExists } from "../middlewares/user";
 
 const chatRouter = Router();
 
 
+chatRouter.param('chatId', chatExists);
+
 chatRouter.post('/',
+    auth,
+    body('name').optional().isLength({min: 3, max: 16}).withMessage('El nombre debe tener entre 3 y 16 caracteres'),
+    body('type').isIn(['private', 'group']).withMessage('Los valores aceptables son private o group'),
+    body('members').isArray().withMessage('Los miembros tienen que ser un arreglo'),
+    body('members.*').isMongoId().withMessage('Los miembros tienen que ser un arreglo de ids de mongoDB'),
+    handleInputErrors,
+    createChatHandler
+);
+
+//TODO: Get user chats
+chatRouter.get('/',
     auth,
     body('name').optional().isLength({min: 3, max: 16}).withMessage('El nombre debe tener entre 3 y 16 caracteres'),
     body('type').isIn(['private', 'group']).withMessage('Los valores aceptables son private o group'),
@@ -41,6 +54,21 @@ chatRouter.post('/members',
     validateChatOwner,
     addUsersToChatHandler
 );
+
+chatRouter.get('/members/:chatId',
+    auth,
+    validateChatMembership,
+    getChatMembersHandler
+);
+
+//TODO: Get chat and members
+chatRouter.get('/:chatId',
+    auth,
+    validateChatMembership,
+    getChatHandler
+);
+
+
 //TODO: Get chat
 //TODO: Update chat
 //TODO: Delete chat

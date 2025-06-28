@@ -103,6 +103,24 @@ export const addUsersToChatHandler = async (req: Request, res: Response) => {
 
 }
 
+export const getChatHandler = async (req: Request, res: Response) => {
+    const chat = req.chat;
+    res.status(200).json(chat);
+    return
+}
+
+export const getChatMembersHandler = async (req: Request, res: Response) => {
+    const chat = req.chat;
+    try {
+        const members = await getChatMembers(chat._id.toString());
+        res.status(200).json(members);
+        return
+    } catch (error) {
+        res.status(400).json({ error: error.message });
+        return
+    }
+}
+
 
 
 //FUNCIONES PARA HANDLERS
@@ -159,4 +177,15 @@ const addUsersToChat = async (chatId: string, userIds: string[]) => {
     const results = await Promise.all(promises);
 
     return results;
+}
+
+const getChatMembers = async (chatId: string) => {
+    const members = await ChatMembership.find({ chat: chatId });
+    if (members && Array.isArray(members)) {
+        return members;
+    }
+    if (!members) {
+        throw new Error('No se encontraron miembros en el chat');
+    }
+    return [];
 }

@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { body } from "express-validator";
 
-import { createChatHandler, addUserToChatHandler } from "../controllers/ChatController";
+import { createChatHandler, addUserToChatHandler, addUsersToChatHandler } from "../controllers/ChatController";
 import { auth } from "../middlewares/auth";
 import handleInputErrors from "../middlewares/handleInputErrors";
 import { chatExists, validateChatOwner } from "../middlewares/chat";

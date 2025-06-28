@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { body } from "express-validator";
 
-import { createChatHandler, addUserToChatHandler, addUsersToChatHandler, getChatHandler, getChatMembersHandler } from "../controllers/ChatController";
+import { createChatHandler, addUserToChatHandler, addUsersToChatHandler, getChatHandler, getChatMembersHandler, getUserChatsHandler } from "../controllers/ChatController";
 import { auth } from "../middlewares/auth";
 import handleInputErrors from "../middlewares/handleInputErrors";
 import { chatExists, validateChatOwner, validateChatMembership } from "../middlewares/chat";
@@ -25,7 +25,7 @@ chatRouter.post('/',
 
 chatRouter.get('/',
     handleInputErrors,
-    createChatHandler
+    getUserChatsHandler
 );
 
 chatRouter.post('/member',

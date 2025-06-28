@@ -3,7 +3,6 @@ import { Chat } from "../models/Chat";
 import { ChatMembership } from "../models/ChatMembership";
 import { User } from "../models/User";
 
-
 export const createChatHandler = async (req: Request, res: Response) => {
     const { name, type, members } = req.body;
     const adminId = req.user._id.toString();
@@ -54,6 +53,26 @@ export const createChatHandler = async (req: Request, res: Response) => {
 
 }
 
+
+export const getUserChatsHandler = async (req: Request, res: Response) => {
+    const user = req.user;
+    try {
+        const chats = await getUserChats(user._id.toString());
+        const chatsWithMembers = await Promise.all(chats.map(async (chat: any) => {
+            const members = await getChatMembers(chat._id.toString());
+            return {
+                ...chat.toObject(),
+                members
+            }
+        }));
+        console.log(chatsWithMembers)
+        res.status(200).json(chatsWithMembers);
+        return
+    } catch (error) {
+        res.status(400).json({ error: error.message });
+        return
+    }
+}
 
 export const addUserToChatHandler = async (req: Request, res: Response) => {
     const chat = req.chat;
@@ -143,7 +162,7 @@ const addUserToChatValidation = async (chatId: string, userId: string, role: 'ad
         //Check if user is already in chat
         const actualUsers = await ChatMembership.find({ chat: chatId });
 
-        if (actualUsers.some(user => user.user.toString() === userId)) {
+        if (actualUsers.some(member => member.user.toString() === userId)) {
             throw new Error('El usuario ya esta en el chat');
         }
 
@@ -181,12 +200,21 @@ const addUsersToChat = async (chatId: string, userIds: string[]) => {
 }
 
 const getChatMembers = async (chatId: string) => {
-    const members = await ChatMembership.find({ chat: chatId });
+    const members = await ChatMembership.find({ chat: chatId }).select('user role lastReadMessage');
     if (members && Array.isArray(members)) {
         return members;
     }
-    if (!members) {
-        throw new Error('No se encontraron miembros en el chat');
-    }
     return [];
+}
+
+const getUserChats = async (userId: string) => {
+    try {
+        const chats = await ChatMembership.find({ user: userId }).populate('chat');
+        if (chats && Array.isArray(chats)) {
+            return chats.map(chat => chat.chat);
+        }
+        return [];
+    } catch (error) {
+        throw new Error('Error al obtener los chats del usuario');
+    }
 }

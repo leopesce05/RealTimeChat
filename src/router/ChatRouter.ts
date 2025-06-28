@@ -9,8 +9,9 @@ import { idExists } from "../middlewares/user";
 
 const chatRouter = Router();
 
-
+chatRouter.use(auth);
 chatRouter.param('chatId', chatExists);
+chatRouter.param('chatId', validateChatMembership);
 
 chatRouter.post('/',
     auth,
@@ -22,19 +23,12 @@ chatRouter.post('/',
     createChatHandler
 );
 
-//TODO: Get user chats
 chatRouter.get('/',
-    auth,
-    body('name').optional().isLength({min: 3, max: 16}).withMessage('El nombre debe tener entre 3 y 16 caracteres'),
-    body('type').isIn(['private', 'group']).withMessage('Los valores aceptables son private o group'),
-    body('members').isArray().withMessage('Los miembros tienen que ser un arreglo'),
-    body('members.*').isMongoId().withMessage('Los miembros tienen que ser un arreglo de ids de mongoDB'),
     handleInputErrors,
     createChatHandler
 );
 
 chatRouter.post('/member',
-    auth,
     body('userId').isMongoId().withMessage('El usuario no es valido'),
     body('chatId').isMongoId().withMessage('El chat no es valido'),
     handleInputErrors,
@@ -45,7 +39,6 @@ chatRouter.post('/member',
 );
 
 chatRouter.post('/members',
-    auth,
     body('users').isArray().withMessage('Los usuarios tienen que ser un arreglo'),
     body('users.*').isMongoId().withMessage('Los usuarios tienen que ser un arreglo de ids de mongoDB'),
     body('chatId').isMongoId().withMessage('El chat no es valido'),
@@ -56,15 +49,10 @@ chatRouter.post('/members',
 );
 
 chatRouter.get('/members/:chatId',
-    auth,
-    validateChatMembership,
     getChatMembersHandler
 );
 
-//TODO: Get chat and members
 chatRouter.get('/:chatId',
-    auth,
-    validateChatMembership,
     getChatHandler
 );
 

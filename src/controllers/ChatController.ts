@@ -105,7 +105,8 @@ export const addUsersToChatHandler = async (req: Request, res: Response) => {
 
 export const getChatHandler = async (req: Request, res: Response) => {
     const chat = req.chat;
-    res.status(200).json(chat);
+    const members = await getChatMembers(chat._id.toString());
+    res.status(200).json({ ...chat, members });
     return
 }
 

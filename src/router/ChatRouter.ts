@@ -1,8 +1,11 @@
 import { Router } from "express";
-import { createChatHandler } from "../controllers/ChatController";
-import { auth } from "../middlewares/auth";
 import { body } from "express-validator";
+
+import { createChatHandler, addUserToChatHandler } from "../controllers/ChatController";
+import { auth } from "../middlewares/auth";
 import handleInputErrors from "../middlewares/handleInputErrors";
+import { chatExists, validateChatOwner } from "../middlewares/chat";
+import { idExists } from "../middlewares/user";
 
 const chatRouter = Router();
 
@@ -17,12 +20,32 @@ chatRouter.post('/',
     createChatHandler
 );
 
+chatRouter.post('/member',
+    auth,
+    body('userId').isMongoId().withMessage('El usuario no es valido'),
+    body('chatId').isMongoId().withMessage('El chat no es valido'),
+    handleInputErrors,
+    chatExists,
+    idExists,
+    validateChatOwner,
+    addUserToChatHandler
+);
+
+chatRouter.post('/members',
+    auth,
+    body('users').isArray().withMessage('Los usuarios tienen que ser un arreglo'),
+    body('users.*').isMongoId().withMessage('Los usuarios tienen que ser un arreglo de ids de mongoDB'),
+    body('chatId').isMongoId().withMessage('El chat no es valido'),
+    handleInputErrors,
+    chatExists,
+    validateChatOwner,
+    addUsersToChatHandler
+);
 //TODO: Get chat
 //TODO: Update chat
 //TODO: Delete chat
 //TODO: Get chats
 //TODO: Get chat members
-//TODO: Add chat member
 //TODO: Remove chat member
 
 

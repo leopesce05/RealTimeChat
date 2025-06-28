@@ -25,7 +25,7 @@ export const validateChatOwner = async (req: Request, res: Response, next: NextF
     }
 
     if(!isAdmin(chatMembership)) {
-        res.status(403).json({ message: 'No tienes permisos para acceder a este chat' });
+        res.status(403).json({ message: 'No tienes permisos para modificar este chat' });
         return
     }
 

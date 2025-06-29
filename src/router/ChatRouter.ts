@@ -57,8 +57,8 @@ chatRouter.post('/members',
     addUsersToChatHandler
 );
 
-// GET /chats/members/:chatId - Get all members of a specific chat
-chatRouter.get('/members/:chatId',
+// GET /chats/:chatId/members - Get all members of a specific chat
+chatRouter.get('/:chatId/members',
     getChatMembersHandler
 );
 

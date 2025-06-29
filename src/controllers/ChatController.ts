@@ -60,12 +60,12 @@ export const getUserChatsHandler = async (req: Request, res: Response) => {
         const chats = await getUserChats(user._id.toString());
         const chatsWithMembers = await Promise.all(chats.map(async (chat: any) => {
             const members = await getChatMembers(chat._id.toString());
+            
             return {
                 ...chat.toObject(),
                 members
             }
         }));
-        console.log(chatsWithMembers)
         res.status(200).json(chatsWithMembers);
         return
     } catch (error) {
@@ -200,9 +200,17 @@ const addUsersToChat = async (chatId: string, userIds: string[]) => {
 }
 
 const getChatMembers = async (chatId: string) => {
-    const members = await ChatMembership.find({ chat: chatId }).select('user role lastReadMessage');
-    if (members && Array.isArray(members)) {
-        return members;
+    const members = await ChatMembership.find({ chat: chatId }).select('user role lastReadMessage').populate('user', '_id username email');
+    const infoMembers = members.map((member: any) => {
+        return {
+            _id: member.user._id,
+            username: member.user.username,
+            email: member.user.email,
+            role: member.role
+        }
+    });
+    if (infoMembers && Array.isArray(infoMembers)) {
+        return infoMembers;
     }
     return [];
 }

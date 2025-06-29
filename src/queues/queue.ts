@@ -1,10 +1,16 @@
 import { Queue, Worker, Job } from 'bullmq';
-import redis from '../config/redis';
+import {RedisClient} from '../config/redis';
 import { ChatMembership } from '../models/ChatMembership';
 import { Chat } from '../models/Chat';
 
+const redis = RedisClient.getQueueInstance();
+
 export const emptyChatsQueue = new Queue('empty-chats', {
-    connection: redis
+    connection: redis,
+    defaultJobOptions: {
+        removeOnComplete: 1,
+        removeOnFail: 5000,
+    }
 });
 
 // Initialize repeatable job for cleaning empty chats
@@ -21,9 +27,8 @@ export const initializeRepeatableJob = async () => {
                 opts: {}, 
             },
         );
-        console.log('✅ Job - Clean empty chats - initialized successfully');
     } catch (error) {
-        console.error('❌ Error initializing repeatable job:', error);
+        throw error;
     }
 };
 

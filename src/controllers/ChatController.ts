@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import { Chat } from "../models/Chat";
 import { ChatMembership } from "../models/ChatMembership";
 import { User } from "../models/User";
+import { cacheService } from "../services/cacheService";
 
 export const createChatHandler = async (req: Request, res: Response) => {
     const { name, type, members } = req.body;
@@ -57,6 +58,12 @@ export const createChatHandler = async (req: Request, res: Response) => {
 export const getUserChatsHandler = async (req: Request, res: Response) => {
     const user = req.user;
     try {
+        const key = `user_chats_${user._id.toString()}`;
+        const cachedChats = await cacheService.get(key);
+        if (cachedChats) {
+            res.status(200).json(JSON.parse(cachedChats));
+            return
+        }
         const chats = await getUserChats(user._id.toString());
         const chatsWithMembers = await Promise.all(chats.map(async (chat: any) => {
             const members = await getChatMembers(chat._id.toString());
@@ -67,6 +74,7 @@ export const getUserChatsHandler = async (req: Request, res: Response) => {
             }
         }));
         res.status(200).json(chatsWithMembers);
+        await cacheService.set(key, JSON.stringify(chatsWithMembers), 60 * 5);
         return
     } catch (error) {
         res.status(400).json({ error: error.message });
@@ -132,8 +140,16 @@ export const getChatHandler = async (req: Request, res: Response) => {
 export const getChatMembersHandler = async (req: Request, res: Response) => {
     const chat = req.chat;
     try {
+        const key = `chat_members_${chat._id.toString()}`;
+        const cachedMembers = await cacheService.get(key);
+        if (cachedMembers) {
+            res.status(200).json(JSON.parse(cachedMembers));
+            return
+        }
         const members = await getChatMembers(chat._id.toString());
+        await cacheService.set(key, JSON.stringify(members), 60 * 5);
         res.status(200).json(members);
+        await cacheService.set(key, JSON.stringify(members), 60 * 5);
         return
     } catch (error) {
         res.status(400).json({ error: error.message });

@@ -2,10 +2,14 @@ import { Queue, Worker, Job } from 'bullmq';
 import {RedisClient} from '../config/redis';
 import { ChatMembership } from '../models/ChatMembership';
 import { Chat } from '../models/Chat';
+import constants from '../config/constants';
+
+const CLEAN_EMPTY_CHATS_CRON = constants.CRON.CLEAN_EMPTY_CHATS;
+
 
 const redis = RedisClient.getQueueInstance();
 
-export const emptyChatsQueue = new Queue('empty-chats', {
+export const emptyChatsQueue = new Queue('clean-empty-chats', {
     connection: redis,
     defaultJobOptions: {
         removeOnComplete: 1,
@@ -17,9 +21,9 @@ export const emptyChatsQueue = new Queue('empty-chats', {
 export const initializeRepeatableJob = async () => {
     try {
         await emptyChatsQueue.upsertJobScheduler(
-            'repeat-every-10s',
+            'clean-empty-chats-job',
             {
-                every: 86400000, // 1 day
+                pattern: CLEAN_EMPTY_CHATS_CRON,
             },
             {
                 name: 'clean-empty-chats',
@@ -34,6 +38,7 @@ export const initializeRepeatableJob = async () => {
 
 // Worker function to find empty chats
 const findEmptyChats = async () => {
+    
     const chatsWithNoMembers = await Chat.find({
         _id: {
             $nin: await ChatMembership.distinct('chat')
@@ -44,7 +49,7 @@ const findEmptyChats = async () => {
 
 // Create worker
 export const worker = new Worker(
-    'empty-chats',
+    'clean-empty-chats',
     async (job: Job) => {
         console.log(`🧹 Processing job ${job.id}: Cleaning empty chats`);
         

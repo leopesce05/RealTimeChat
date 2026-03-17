@@ -159,7 +159,9 @@ export const getChatMembersHandler = async (req: Request, res: Response) => {
 
 
 
-//FUNCIONES PARA HANDLERS
+
+
+// HELPERS
 
 const addUserToChatValidation = async (chatId: string, userId: string, role: 'admin' | 'member') => {
     //Check if chat exists

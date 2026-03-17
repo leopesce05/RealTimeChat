@@ -1,5 +1,4 @@
 import {CorsOptions} from 'cors';
-import colors from 'colors';
 
 export const corsOptions: CorsOptions = {
     origin: function(origin, callback){

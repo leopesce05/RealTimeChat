@@ -3,7 +3,7 @@ import { createServer } from 'http';
 import { Server } from 'socket.io';
 import colors from 'colors';
 import { setupSocketEvents } from './socketIO';
-import { initializeRepeatableJob } from './queues/queue';
+import { initializeRepeatableJob } from './queues/clean-empty-chats';
 
 //INICIALIZACION DE SERVIDOR Y SOCKET.IO
 const server = createServer(app);

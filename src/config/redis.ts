@@ -12,6 +12,8 @@ interface RedisConfig {
     maxRetriesPerRequest?: number;
 }
 
+//SINGLETON REDIS CONNECTION FOR THE APP
+//Both instance are necesary because BullMQ requires "maxRetriesPerRequest = null"
 class RedisClient {
     private static instance: Redis | null = null;
     private static queueInstance: Redis | null = null;
@@ -45,6 +47,7 @@ class RedisClient {
 
         return redis;
     }
+
     private static createConnection(): Redis {
         const config: RedisConfig = {
             host: process.env.REDIS_HOST || 'localhost',

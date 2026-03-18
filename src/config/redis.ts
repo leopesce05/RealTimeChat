@@ -84,6 +84,33 @@ class RedisClient {
         return redis;
     }
 
+    // Factory: crea una nueva conexion Redis para cada Queue/Worker de BullMQ
+    static createBullMQConnection(): Redis {
+        const config: RedisConfig = {
+            host: process.env.REDIS_HOST || 'localhost',
+            port: parseInt(process.env.REDIS_PORT || '6379'),
+            username: process.env.REDIS_USERNAME,
+            password: process.env.REDIS_PASSWORD,
+            db: parseInt(process.env.REDIS_DB || '0'),
+            maxRetriesPerRequest: null,
+        };
+        const redis = new Redis(config);
+
+        redis.on('connect', () => {
+            console.log('[BullMQ] Redis connected');
+        });
+
+        redis.on('error', (error) => {
+            console.error('[BullMQ] Redis connection error:', error.message);
+        });
+
+        redis.on('close', () => {
+            console.log('[BullMQ] Redis connection closed');
+        });
+
+        return redis;
+    }
+
     static async testConnection(): Promise<boolean> {
         try {
             const redis = RedisClient.getInstance();

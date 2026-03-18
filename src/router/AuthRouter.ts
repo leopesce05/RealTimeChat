@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { body } from "express-validator";
 import  handleInputErrors  from "../middlewares/handleInputErrors";
-import { createAccount, login } from "../controllers/AuthHandlers";
+import { createAccount, login } from "../controllers/AuthController";
 
 const authRouter = Router();
 

@@ -1,22 +1,23 @@
 import { Router } from "express";
 import { body } from "express-validator";
 
-import auth from "../middlewares/auth";
+import {auth } from "../middlewares/auth";
+import {validateEmail, emailExists } from "../middlewares/user";
 import handleInputErrors from "../middlewares/handleInputErrors";
-import { validateEmail, validateEmailExists } from "../middlewares/user";
-import { getUser,updateUsername,addContact,deleteContact, getContacts } from "../controllers/UserHandlers";
+import { getUser,updateUsername, getUserByEmail } from "../controllers/UserController";
 
 const userRouter = Router();
 
 userRouter.param('email', validateEmail);
-userRouter.param('email', validateEmailExists);
+userRouter.param('email', emailExists);
 
-
+//GET SELF USER
 userRouter.get('/', 
     auth,
     getUser
 );
 
+//UPDATE SELF USER
 userRouter.put('/', 
     auth,
     body('username').notEmpty().withMessage('El nombre no debe estar vacio'),
@@ -24,19 +25,11 @@ userRouter.put('/',
     updateUsername
 );
 
-userRouter.get('/contact', 
+//GET USER BY EMAIL
+userRouter.get('/:email',
     auth,
-    getContacts
+    getUserByEmail
 );
 
-userRouter.post('/contact/:email', 
-    auth,
-    addContact
-);
-
-userRouter.delete('/contact/:email', 
-    auth,
-    deleteContact
-);
 
 export default userRouter;
